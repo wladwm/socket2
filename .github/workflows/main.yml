@@ -1,13 +1,12 @@
 name: CI
 on:
   push:
-    branches: [ master, "v0.3.x" ]
+    branches: [ master, "v0.4.x" ]
   pull_request:
-    branches: [ master, "v0.3.x" ]
+    branches: [ master, "v0.4.x" ]
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: full
-
 jobs:
   Test:
     name: Test
@@ -15,14 +14,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [stable, 1.46.0, beta, nightly, macos, windows]
+        build: [stable, 1.63.0, beta, nightly, macos, windows]
         include:
           - build: stable
             os: ubuntu-latest
             rust: stable
-          - build: 1.46.0
+          - build: 1.63.0
             os: ubuntu-latest
-            rust: 1.46.0
+            rust: 1.63.0
           - build: beta
             os: ubuntu-latest
             rust: beta
@@ -36,98 +35,81 @@ jobs:
             os: windows-latest
             rust: stable
     steps:
-    - uses: actions/checkout@master
-    - name: Install Rust (rustup)
-      run: rustup update ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
-      shell: bash
-    - name: Install cargo-hack
-      run: cargo install cargo-hack
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.rust }}
+    - uses: taiki-e/install-action@cargo-hack
     - name: Run tests
       run: cargo hack test --feature-powerset && cargo hack test --feature-powerset --release
-
   Rustfmt:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Install Rust
-      run: rustup update stable && rustup default stable && rustup component add rustfmt
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
     - name: Check formatting
       run: cargo fmt --all -- --check
-
   Check:
-    name: Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        # TODO: add the following targets, currently broken.
-        # "x86_64-unknown-redox"
-        target: ["aarch64-apple-ios", "aarch64-linux-android", "x86_64-apple-darwin", "x86_64-fuchsia", "x86_64-pc-windows-msvc", "x86_64-pc-solaris", "x86_64-unknown-illumos", "x86_64-unknown-linux-gnu", "x86_64-unknown-netbsd"]
+        target:
+          - aarch64-apple-darwin
+          - aarch64-apple-ios
+          - aarch64-apple-tvos
+          - aarch64-apple-visionos
+          - aarch64-apple-watchos
+          - aarch64-linux-android
+          - aarch64-unknown-freebsd
+          - aarch64-unknown-linux-gnu
+          - aarch64-unknown-linux-musl
+          - aarch64-unknown-netbsd
+          - aarch64-unknown-openbsd
+          - aarch64-unknown-redox
+          - arm-linux-androideabi
+          - arm64_32-apple-watchos
+          - armv7-linux-androideabi
+          - armv7-sony-vita-newlibeabihf
+          - i686-linux-android
+          - i686-unknown-hurd-gnu
+          - i686-unknown-linux-gnu
+          - sparcv9-sun-solaris
+          - x86_64-apple-darwin
+          - x86_64-apple-ios
+          - x86_64-pc-solaris
+          # Fails with:
+          # `rror calling dlltool 'x86_64-w64-mingw32-dlltool': No such file or
+          # directory (os error 2)`, build log:
+          # <https://github.com/rust-lang/socket2/actions/runs/9577808331/job/26406752150>.
+          #- x86_64-pc-windows-gnu
+          - x86_64-pc-windows-msvc
+          - x86_64-unknown-dragonfly
+          - x86_64-unknown-freebsd
+          - x86_64-unknown-fuchsia
+          - x86_64-unknown-illumos
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+          - x86_64-unknown-netbsd
+          - x86_64-unknown-openbsd
+          - x86_64-unknown-redox
     steps:
-    - uses: actions/checkout@master
-    - name: Install Rust
-      run: rustup update stable && rustup default stable
-    - name: Install cargo-hack
-      run: cargo install cargo-hack
-    - name: Install Target
-      run: rustup target add ${{ matrix.target }}
-    - name: Run check
-      run: cargo hack check --feature-powerset --all-targets --examples --bins --tests --target ${{ matrix.target }}
-
-  # Redox needs a nightly compiler for libc:
-  # https://github.com/rust-lang/libc/issues/2012
-  Check_Redox:
-    name: Check
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: ["x86_64-unknown-redox"]
-    steps:
-    - uses: actions/checkout@master
-    - name: Install Rust nightly
-      run: rustup update nightly && rustup default nightly
-    - name: Install cargo-hack
-      run: cargo install cargo-hack
-    - name: Install Target
-      run: rustup target add ${{ matrix.target }}
-    - name: Run check
-      run: cargo hack check --feature-powerset --all-targets --examples --bins --tests --target ${{ matrix.target }}
-
-  Test_FreeBSD:
-    name: Test
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        target: ["x86_64-unknown-freebsd"]
-    steps:
-    - uses: actions/checkout@master
-    - name: Run check
-      uses: vmactions/freebsd-vm@v0.1.0
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@nightly
       with:
-        prepare: |
-          pkg install -y curl
-          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
-        run: |
-          set path=($HOME/.cargo/bin $path)
-          cargo install cargo-hack
-          cargo hack test --feature-powerset --target ${{ matrix.target }}
-          cargo hack test --feature-powerset --release --target ${{ matrix.target }}
-
-  Publish_docs:
-    name: Publish Documentation
+        components: rust-src
+    - uses: taiki-e/install-action@cargo-hack
+    - name: Check build
+      run: cargo hack check -Z build-std=std,panic_abort --feature-powerset --target ${{ matrix.target }}
+    - name: Check docs
+      run: RUSTDOCFLAGS="-D warnings --cfg docsrs" cargo doc -Z build-std=std,panic_abort --no-deps --all-features --target ${{ matrix.target }}
+  Clippy:
+    name: Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Install Rust
-        run: rustup update stable && rustup default stable
-      - name: Build documentation
-        run: cargo doc --no-deps --all-features
-      - name: Publish documentation
-        run: |
-          cd target/doc
-          git init
-          git add .
-          git -c user.name='ci' -c user.email='ci' commit -m init
-          git push -f -q https://git:${{ secrets.github_token }}@github.com/${{ github.repository }} HEAD:gh-pages
-        if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+    - name: Run Clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings

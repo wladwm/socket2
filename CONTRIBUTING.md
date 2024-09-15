@@ -33,13 +33,13 @@ add new tests.
 
 All types and methods that are available on all tier 1 platforms are defined in
 the first level of the source, i.e. `src/*.rs` files. Additional API that is
-platform specific, e.g. `Domain::UNIX`, is defined in `src/sys/*.rs` and only
+platform specific, e.g. `Domain::VSOCK`, is defined in `src/sys/*.rs` and only
 for the platforms that support it. For API that is not available on all tier 1
 platforms the `all` feature is used, to indicate to the user that they're using
 API that might is not available on all platforms.
 
 The main `Socket` type is defined in `src/socket.rs` with additional methods
-defined on in the the `src/sys/*.rs` files, as per above. The methods on
+defined in the `src/sys/*.rs` files, as per above. The methods on
 `Socket` are split into multiple `impl` blocks. The first `impl` block contains
 a collection of system calls for creating and using the socket, e.g.
 `socket(2)`, `bind(2)`, `listen(2)`, etc. The other implementation blocks are
@@ -48,10 +48,10 @@ where each block contains a single level. The methods in these block are sorted
 based on the option name, e.g. `IP_ADD_MEMBERSHIP` rather than
 `join_multicast_v4`. Finally the last block contains platforms specific methods
 such as `Socket::freebind` which is (at the time of writing) only available on
-Android, Linux and Fuschia, which is defined in the `src/sys/*.rs` files.
+Android, Linux and Fuchsia, which is defined in the `src/sys/*.rs` files.
 
 Other types are mostly defined in `src/lib.rs`, except for `SockAddr` and
-`SockRef` which have there own file. These types follow the same structure as
+`SockRef` which have their own file. These types follow the same structure as
 `Socket`, where OS specific methods are defined in `src/sys/*.rs`, e.g.
 `Type::cloexec`.
 

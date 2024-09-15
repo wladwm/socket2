@@ -1,3 +1,263 @@
+# 0.5.7
+
+* Added `Socket::(set_)passcred`
+  (https://github.com/rust-lang/socket2/pull/506).
+* Added `RecvFlags::is_confirm` and `RecvFlags::is_dontroute`
+  (https://github.com/rust-lang/socket2/pull/499).
+* Added `MsgHdrMut::control_len`
+  (https://github.com/rust-lang/socket2/pull/505).
+
+# 0.5.6
+
+* Added `Socket::(set_)multicast_all_v{4,6}`
+  (https://github.com/rust-lang/socket2/pull/485 and
+   https://github.com/rust-lang/socket2/pull/486).
+* Added support for GNU/Hurd
+  (https://github.com/rust-lang/socket2/pull/474).
+* Fixes compilation on Haiku
+  (https://github.com/rust-lang/socket2/pull/479 and
+   https://github.com/rust-lang/socket2/pull/482).
+* Fixes compilation on OpenHarmony
+  (https://github.com/rust-lang/socket2/pull/491).
+* Update to window-sys v0.52
+  (https://github.com/rust-lang/socket2/pull/480).
+
+# 0.5.5
+
+* Added support for Vita
+  (https://github.com/rust-lang/socket2/pull/465).
+
+# 0.5.4
+
+* Deprecated `Socket::(bind_)device_by_index`, replaced by
+  `Socket::(bind_)device_by_index_v4` for IPv4 sockets
+  (https://github.com/rust-lang/socket2/pull/432).
+* Added `Socket::(bind_)device_by_index_v6`
+  (https://github.com/rust-lang/socket2/pull/432).
+* Added experimental support for the ESP-IDF framework
+  (https://github.com/rust-lang/socket2/pull/452)
+* Added `Socket::{send,recv}msg` and `MsgHdr(Mut)` types, wrapping `sendmsg(2)`
+  and `recvmsg(2)`
+  (https://github.com/rust-lang/socket2/pull/447).
+* Added `Socket::(set_)reuse_port_lb` to retrieve or set `SO_REUSEPORT_LB` on
+  FreeBSD
+  (https://github.com/rust-lang/socket2/pull/442).
+* Added `Protocol::DIVERT` on FreeBSD and OpenBSD
+  (https://github.com/rust-lang/socket2/pull/448).
+* Added `Socket::protocol` for Windows (using `WSAPROTOCOL_INFOW`)
+  (https://github.com/rust-lang/socket2/pull/470).
+* `From<SocketAddrV{4,6}>` for `SockAddr ` nows sets `ss_len` on platforms that
+  have the fields (most BSDs)
+  (https://github.com/rust-lang/socket2/pull/469).
+* Change Windows to use `ADDRESS_FAMILY` for `sa_family_t`, this shouldn't
+  affect anything in practice
+  (https://github.com/rust-lang/socket2/pull/463).
+
+# 0.5.3
+
+* Added support for two new Android targets `armv7-linux-androideabi` and
+  `i686-linux-android` (https://github.com/rust-lang/socket2/pull/434).
+* Added `Socket::cookie` to retrieve `SO_COOKIE` on Linux
+  (https://github.com/rust-lang/socket2/pull/437).
+
+# 0.5.2
+
+* Added Unix socket methods to `SockAddr`
+  (https://github.com/rust-lang/socket2/pull/403 and
+  https://github.com/rust-lang/socket2/pull/429).
+* Added `SockAddr::as_storage`
+  (https://github.com/rust-lang/socket2/pull/417).
+* Added `SockAddr::set_length`
+  (https://github.com/rust-lang/socket2/pull/428).
+* Added `Protocol::UDPLITE`
+  (https://github.com/rust-lang/socket2/pull/427).
+* Update windows-sys to 0.48
+  (https://github.com/rust-lang/socket2/pull/422).
+* Fixes Fuchsia target after it changes in 1.68, see
+  <https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1680-2023-03-09>
+  (https://github.com/rust-lang/socket2/pull/423).
+* Fixes musl target and adds it to the CI
+  (https://github.com/rust-lang/socket2/pull/426).
+
+# 0.5.1
+
+## Added
+
+* `Type::cloexec` for Redox and Solaris
+  (https://github.com/rust-lang/socket2/pull/398).
+* Generate documentation for more targets on docs.rs
+  (https://github.com/rust-lang/socket2/pull/398).
+
+## Fixed
+
+* Generatation of documentation on docs.rs
+  (https://github.com/rust-lang/socket2/pull/398).
+
+# 0.5.0
+
+## Changed
+
+* **BREAKING** `SockAddr::init` is renamed to `try_init` to indicate it can fail
+  (https://github.com/rust-lang/socket2/pull/328).
+* **BREAKING** Remove the returned `Result` from `SockAddr::vsock`, it can't
+  fail (https://github.com/rust-lang/socket2/pull/328).
+* **BREAKING** `From<S>` is now implemented using the I/O traits `AsFd` and
+  `AsRawSocket`
+  (https://github.com/rust-lang/socket2/pull/325):
+* **BREAKING** renamed `SockAddr::vsock_addr` `SockAddr::as_vsock_addr` to match
+  the IPv4 and IPv6 methods
+  (https://github.com/rust-lang/socket2/pull/334).
+* Redox now works on a stable compiler
+  (https://github.com/rust-lang/socket2/pull/326).
+* Remove copy from `From<SocketAddrV{4,6}>` implementation for `SockAddr`
+  (https://github.com/rust-lang/socket2/pull/335).
+* Marked function as constant where possible.
+* Updated to Rust edition 2021
+  (https://github.com/rust-lang/socket2/pull/393).
+
+## Added
+
+* Links to OS documentation to a lot of methods
+  (https://github.com/rust-lang/socket2/pull/319).
+* I/O-safety traits (https://github.com/rust-lang/socket2/pull/325):
+  * `AsFd` for `Socket` (Unix only).
+  * `From<OwnedFd>` for `Socket` (Unix only).
+  * `From<Socket>` for `OwnedFd` (Unix only).
+  * `AsSocket` for `Socket` (Windows only).
+  * `From<OwnedSocket>` for `Socket` (Windows only).
+  * `From<Socket>` for `OwnedSocket` (Windows only).
+* Unix socket support on Windows
+  (https://github.com/rust-lang/socket2/pull/249).
+* `SockAddr::is_ipv{4,6}` and `SockAddr::domain`
+  (https://github.com/rust-lang/socket2/pull/334).
+* `Socket::nonblocking`
+  (https://github.com/rust-lang/socket2/pull/348).
+* `Socket::original_dst(_ipv6)`
+  (https://github.com/rust-lang/socket2/pull/360).
+* `Socket::(set_)recv_tclass_v6` and `Socket::(set_)tclass_v6`
+  (https://github.com/rust-lang/socket2/pull/364).
+* `Socket::(set_)tcp_congestion`
+  (https://github.com/rust-lang/socket2/pull/371).
+* Support for various DCCP socket options in the form of
+  (https://github.com/rust-lang/socket2/pull/359):
+  * `Socket::(set_)dccp_service`
+  * `Socket::dccp_available_ccids`
+  * `Socket::dccp_qpolicy_txqlen`
+  * `Socket::dccp_recv_cscov`
+  * `Socket::dccp_send_cscov`
+  * `Socket::dccp_server_timewait`
+  * `Socket::dccp_server_timewait`
+  * `Socket::dccp_tx_ccid`
+  * `Socket::dccp_xx_ccid`
+  * `Socket::set_dccp_ccid`
+  * `Socket::set_dccp_qpolicy_txqlen`
+  * `Socket::set_dccp_recv_cscov`
+  * `Socket::set_dccp_send_cscov`
+  * `Socket::set_dccp_server_timewait`
+  * `Socket::dccp_cur_mps`
+* `Socket::peek_send`
+  (https://github.com/rust-lang/socket2/pull/389).
+* `Protocol::MPTCP`
+  (https://github.com/rust-lang/socket2/pull/349).
+* `Protocol::SCTP`
+  (https://github.com/rust-lang/socket2/pull/356).
+* `Protocol::DCCP`
+  (https://github.com/rust-lang/socket2/pull/359).
+* `Type::DCCP`
+  (https://github.com/rust-lang/socket2/pull/359).
+* Implement `Eq` and `Hash` for `SockAddr`
+  (https://github.com/rust-lang/socket2/pull/374).
+* Support for QNX Neutrino
+  (https://github.com/rust-lang/socket2/pull/380).
+* Support for AIX
+  (https://github.com/rust-lang/socket2/pull/351).
+
+# 0.4.10
+
+* Fixed compilation with the `all` on QNX Neutrino
+  (https://github.com/rust-lang/socket2/pull/419).
+* Added support for ESP-IDF
+  (https://github.com/rust-lang/socket2/pull/455).
+* Added support for Vita
+  (https://github.com/rust-lang/socket2/pull/475).
+
+# 0.4.9
+
+* Fixed compilation on Windows
+  (https://github.com/rust-lang/socket2/pull/409).
+
+# 0.4.8 (yanked)
+
+This release was broken for Windows.
+
+* Added `Socket::peek_sender` (backport)
+  (https://github.com/rust-lang/socket2/pull/404).
+
+# 0.4.7
+
+* Fixes compilation on OpenBSD
+  (https://github.com/rust-lang/socket2/pull/344).
+* Fixes compilation on DragonFlyBSD
+  (https://github.com/rust-lang/socket2/pull/342).
+
+# 0.4.6
+
+* Reverted back to the `winapi` dependency as switch to `windows-sys` was a
+  breaking change (https://github.com/rust-lang/socket2/pull/340).
+  Note that we'll will switch to `windows-sys` in v0.5 .
+* Disable RECVTOS on OpenBSD
+  (https://github.com/rust-lang/socket2/pull/307).
+* Derive Clone for SockAddr
+  (https://github.com/rust-lang/socket2/pull/311).
+* Fixes cfg attributes for Fuchsia
+  (https://github.com/rust-lang/socket2/pull/314).
+
+# 0.4.5 (yanked)
+
+## Changed
+
+* Replace `winapi` dependency with `windows-sys`
+  (https://github.com/rust-lang/socket2/pull/303).
+
+## Added
+
+* `Socket::join_ssm_v4` and `Socket::leave_ssm_v4`
+  (https://github.com/rust-lang/socket2/pull/298).
+* `Socket::set_recv_tos` and `Socket::recv_tos`
+  (https://github.com/rust-lang/socket2/pull/299).
+
+## Fixed
+
+* OpenBSD build
+  (https://github.com/rust-lang/socket2/pull/291).
+
+# 0.4.4
+
+## Fixed
+
+* Libc v0.2.114 fixed an issue where `ip_mreqn` where was not defined for Linux
+  s390x.
+
+# 0.4.3 (yanked)
+
+## Added
+
+* `Socket::set_fib`: sets `SO_SETFIB` (https://github.com/rust-lang/socket2/pull/271).
+* `Socket::attach_filter`, `SO_ATTACH_FILTER` (https://github.com/rust-lang/socket2/commit/6601ed132b37d6e9d178b34918bfb0b236800232).
+* `Socket::detach_filter`, `SO_DETACH_FILTER` (https://github.com/rust-lang/socket2/commit/6601ed132b37d6e9d178b34918bfb0b236800232).
+* `Socket::{header_included, set_header_included}`: sets or gets `IP_HDRINCL`
+  (https://github.com/rust-lang/socket2/commit/f9e882ee53c0b4e89c5043b6d709af95c9db5599).
+* `Socket::{cork, set_cork}`: sets or gets `TCP_CORK`
+  (https://github.com/rust-lang/socket2/commit/50f31f18aac8fd6ef277df2906adeeed9fa391de).
+* `Socket::{quickack, set_quickack}`: sets or gets `TCP_QUICKACK`
+  (https://github.com/rust-lang/socket2/commit/849eee2abc5d5170d2d3bc635386a2ba13b04530).
+* `Socket::{thin_linear_timeouts, set_thin_linear_timeouts}`: sets or gets
+  `TCP_THIN_LINEAR_TIMEOUTS`
+  (https://github.com/rust-lang/socket2/commit/24c231ca463a17f51e53e7a554c7915a95bdbcc7).
+* `Socket::{join_multicast_v4_n, leave_multicast_v4_n}`: extends the existing
+  multicast API by allowing an index to be used (in addition to an address)
+  (https://github.com/rust-lang/socket2/commit/750f83618b967c620bbfdf6ca04de7362bdb42b5).
+
 # 0.4.2
 
 ## Added
@@ -13,13 +273,13 @@
 
 ## Added
 
-* Add `SockAddr::new`
+* Added `SockAddr::new`
 * Support for `TCP_USER_TIMEOUT`.
 * Support for `IP_BOUND_IF`.
 * Support for `IP_TRANSPARENT`.
 * Enable `Socket::type` on all platforms.
 * Support for uclibc (for Haiku support).
-* Add DragonFly support for TCP keepalive (`KEEPINTVL`/`KEEPCNT`).
+* Added DragonFly support for TCP keepalive (`KEEPINTVL`/`KEEPCNT`).
 * Documentation for proper use of `SockRef::from`, and the improper use.
 * Assertion in `SockRef::from` to ensure the raw socket valid.
 
@@ -142,7 +402,6 @@
 * Use correct inmutable references in `Socket::send_with_flags` and
   `Socket::send_out_of_band`.
 * Use `IPPROTO_IPV6` in `Socket::join_multicast_v6` on Windows.
-* Don't assume the memory layout of `std::net::SocketAddr`.
 * Use `c_int` instead of `i32` where appropriate.
 
 ## From v0.4.0-alpha.1 to v0.4.0-alpha.2
@@ -163,3 +422,8 @@
 ## From v0.4.0-alpha.5 to v0.4.0
 
 * Use `SO_LINGER_SEC` on macOS for `Socket::get/set_linger`.
+
+# 0.3.16
+
+* Don't assume the memory layout of `std::net::SocketAddr`.
+* Other changes omited
